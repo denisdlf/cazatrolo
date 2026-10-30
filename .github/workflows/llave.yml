@@ -1,0 +1,29 @@
+# Crea la llave de firma del APK. Ejecútalo UNA SOLA VEZ (ver README, paso 4).
+name: Crear llave de firma (una vez)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  llave:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - name: Generar llave
+        env:
+          CLAVE: ${{ secrets.CAZATROLO_KEYSTORE_PASSWORD }}
+        run: |
+          test ${#CLAVE} -ge 6 || { echo "::error::Primero crea el secreto CAZATROLO_KEYSTORE_PASSWORD (mínimo 6 caracteres)"; exit 1; }
+          keytool -genkeypair -keystore cazatrolo.keystore -alias cazatrolo -keyalg RSA -keysize 2048 \
+            -validity 10000 -storepass "$CLAVE" -keypass "$CLAVE" -dname "CN=CAZATROLO, O=Amigos, C=CL"
+          mkdir llave
+          cp cazatrolo.keystore llave/
+          base64 -w0 cazatrolo.keystore > llave/PEGAR-EN-CAZATROLO_KEYSTORE_BASE64.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: llave-cazatrolo-GUARDAR-Y-BORRAR
+          path: llave/
+          retention-days: 1

@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">CAZATROLO</string>
+    <string name="title_activity_main">CAZATROLO</string>
+    <string name="package_name">cl.cazatrolo.app</string>
+    <string name="custom_url_scheme">cl.cazatrolo.app</string>
+</resources>

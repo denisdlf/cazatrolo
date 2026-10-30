@@ -1,0 +1,61 @@
+# Compila el APK de CAZATROLO en los servidores de GitHub (gratis).
+# Se ejecuta a mano: GitHub → Actions → "Compilar APK" → Run workflow.
+name: Compilar APK
+
+on:
+  workflow_dispatch:
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Pruebas
+        run: npm test
+
+      - name: Compilar la web
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+        run: |
+          test -n "$VITE_SUPABASE_URL" || { echo "::error::Falta el secreto VITE_SUPABASE_URL"; exit 1; }
+          npm run build
+          npx cap sync android
+
+      - name: Restaurar llave de firma
+        env:
+          KEYSTORE_BASE64: ${{ secrets.CAZATROLO_KEYSTORE_BASE64 }}
+        run: |
+          test -n "$KEYSTORE_BASE64" || { echo "::error::Falta el secreto CAZATROLO_KEYSTORE_BASE64"; exit 1; }
+          echo "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/cazatrolo.keystore"
+
+      - name: Compilar APK
+        working-directory: android
+        env:
+          CAZATROLO_KEYSTORE: ${{ runner.temp }}/cazatrolo.keystore
+          CAZATROLO_KEYSTORE_PASSWORD: ${{ secrets.CAZATROLO_KEYSTORE_PASSWORD }}
+          VERSION_CODE: ${{ github.run_number }}
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleRelease --no-daemon
+          cp app/build/outputs/apk/release/app-release.apk "$GITHUB_WORKSPACE/CAZATROLO-v${{ github.run_number }}.apk"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: CAZATROLO-v${{ github.run_number }}
+          path: CAZATROLO-v*.apk
+          retention-days: 30

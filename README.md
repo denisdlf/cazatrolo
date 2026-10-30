@@ -6,6 +6,11 @@ Juego para un grupo cerrado de amigos: ves a alguien del grupo, le sacas una fot
 - **APK de Android**: la misma app, instalable directo (sin Play Store).
 - **Costo: $0** (Supabase Free + Vercel Hobby + GitHub Actions).
 
+**Enlaces del grupo**
+- Web (iPhone o cualquier navegador): **https://cazatrolo.vercel.app**
+- Repositorio: https://github.com/denisdlf/cazatrolo
+- APKs compilados: https://github.com/denisdlf/cazatrolo/actions/workflows/apk.yml
+
 > No necesitas saber programar para seguir esta guía. Haz los pasos **en orden**. Cada paso termina con un "✅ Comprueba que…".
 
 ---
@@ -111,7 +116,7 @@ En tu repositorio: **Settings** → **Secrets and variables** → **Actions** �
 3. Vercel detecta "Vite" solo. Abre **Environment Variables** y agrega:
    - `VITE_SUPABASE_URL` = tu Project URL
    - `VITE_SUPABASE_ANON_KEY` = tu anon key
-4. **Deploy**. En ~1 minuto te da una dirección tipo `https://cazatrolo.vercel.app`.
+4. **Deploy**. En ~1 minuto queda publicada. Si el proyecto aparece con "No Production Domain", toca **Add Domain** y escribe una dirección gratuita terminada en `.vercel.app` (la nuestra es `https://cazatrolo.vercel.app`).
 5. ✅ Comprueba: abre esa dirección en el celular. Debe aparecer **"👑 Configurar el grupo"**.
 
 ### 3.1 Configurar el grupo (solo tú, una vez)
@@ -162,7 +167,7 @@ La llave asegura que cada APK nuevo se instale **encima** del anterior sin perde
 1) Descarga el APK adjunto y ábrelo (si pide permiso para instalar apps desconocidas, acéptalo).
 2) Código del grupo: XXXXX
 3) Elige tu nombre, crea tu PIN de 4 números y pon tu ciudad.
-¿iPhone? Abre https://cazatrolo.vercel.app en Safari → Compartir → Agregar a inicio.
+🍎 ¿iPhone? Abre https://cazatrolo.vercel.app en Safari → botón Compartir → "Agregar a inicio".
 Las reglas están en el botón ❓ de la app. ¡A cazar!
 ```
 

@@ -56,7 +56,17 @@ jobs:
           VERSION_CODE: ${{ github.run_number }}
         run: |
           chmod +x gradlew
-          ./gradlew assembleRelease --no-daemon
+          set +e
+          ./gradlew assembleRelease --no-daemon --stacktrace 2>&1 | tee gradle.log
+          estado=${PIPESTATUS[0]}
+          set -e
+          if [ "$estado" -ne 0 ]; then
+            # Muestra el motivo del error como anotación (visible en el resumen)
+            motivo=$(grep -A 12 "What went wrong" gradle.log | head -14 | sed ':a;N;$!ba;s/\n/%0A/g')
+            [ -z "$motivo" ] && motivo=$(tail -25 gradle.log | sed ':a;N;$!ba;s/\n/%0A/g')
+            echo "::error title=Gradle::$motivo"
+            exit 1
+          fi
           cp app/build/outputs/apk/release/app-release.apk "$GITHUB_WORKSPACE/CAZATROLO-v${{ github.run_number }}.apk"
 
       - uses: actions/upload-artifact@v5

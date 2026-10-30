@@ -39,9 +39,14 @@ jobs:
       - name: Restaurar llave de firma
         env:
           KEYSTORE_BASE64: ${{ secrets.CAZATROLO_KEYSTORE_BASE64 }}
+          CLAVE: ${{ secrets.CAZATROLO_KEYSTORE_PASSWORD }}
         run: |
           test -n "$KEYSTORE_BASE64" || { echo "::error::Falta el secreto CAZATROLO_KEYSTORE_BASE64"; exit 1; }
-          echo "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/cazatrolo.keystore"
+          # Ignora espacios y saltos de línea que se cuelan al copiar y pegar
+          printf '%s' "$KEYSTORE_BASE64" | tr -d '[:space:]' | base64 -d > "$RUNNER_TEMP/cazatrolo.keystore" 2>/dev/null \
+            || { echo "::error::El secreto CAZATROLO_KEYSTORE_BASE64 está incompleto o mal copiado. Vuelve a pegar TODO el texto del archivo PEGAR-EN-CAZATROLO_KEYSTORE_BASE64.txt"; exit 1; }
+          keytool -list -keystore "$RUNNER_TEMP/cazatrolo.keystore" -storepass "$CLAVE" -alias cazatrolo >/dev/null 2>&1 \
+            || { echo "::error::La llave no abre con la clave de CAZATROLO_KEYSTORE_PASSWORD. ¿Cambiaste la clave después de crear la llave? Vuelve a correr 'Crear llave de firma' y pega el nuevo texto."; exit 1; }
 
       - name: Compilar APK
         working-directory: android
